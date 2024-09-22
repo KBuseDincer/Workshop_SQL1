@@ -1,0 +1,139 @@
+--1) select p.productname, (o.unitprice*o.quantity) as 'Fiyat' from Products p
+--join 'Order Details' o on p.ProductID = o.productid
+--order by 'Fiyat' DESC
+--LIMIT 1
+
+--2) select p.ProductName, od.productid, o.orderid, o.orderdate from 'Order Details' od
+--join orders o on od.orderid = o.OrderID
+--JOIN Products p on od.productid = p.ProductID
+--order by o.OrderDate DESC
+--LIMIT 1
+
+--3) select productid, productname, unitprice from Products
+--where unitprice > (select avg(unitprice) from Products)
+
+--4) select productname, categoryid from Products
+--where categoryid IN (SELECT categoryid from Categories where categoryname IN ('Dairy Products', 'Seafood'))
+
+--5) select c.categoryid, c.categoryname, p.productname, p.unitprice from Products p
+--join Categories c on p.CategoryID = c.CategoryID
+--where p.unitprice = (select max(unitprice) from Products)
+
+
+--6) select c.customerid, c.city, o.orderid from Customers c
+--join orders o on c.customerid = o.CustomerID
+--where c.city = 'Lyon'
+
+
+--7) SELECT k.categoryid, p.productname, p.unitprice from Products p
+--JOIN (select categoryid, avg(unitprice) as Ortalama from Products GROUP by categoryid) as k 
+--on p.CategoryID = k.categoryid 
+--where p.UnitPrice > k.ortalama
+
+--8) select orderid, customerid, MAX(orderdate) AS ORDERDATES from Orders
+--GROUP by customerid
+
+--9) select concat(e.firstname,' ', e.lastname) as 'Full Name', count(o.OrderID) from Employees e
+--join orders o on e.EmployeeID = o.OrderID
+--GROUP by e.EmployeeID
+
+--10) select o.orderid, o.orderdate, od.quantity from Orders o 
+--join 'Order Details' od on o.orderid = od.orderid
+--where od.quantity>=10
+
+--11) select p.categoryid, p.productname, avg(e.'En Pahalı Ürünler') from Products p 
+--join (select productname, categoryid, max(unitprice) as 'En Pahalı Ürünler' from Products
+--GROUP by categoryid) as e on p.CategoryID = e.categoryid
+--GROUP by p.categoryid
+
+
+--12) SELECT c.customerid, c.companyname, COUNT(o.orderid) AS total_orders FROM customers c
+--LEFT JOIN orders o ON c.customerid = o.customerid
+--GROUP BY c.customerid, c.companyname
+--ORDER BY total_orders DESC;
+
+
+--13) select c.customerid, c.companyname, max(o.OrderDate), count(o.orderid) from Customers c 
+--left join orders o on c.CustomerID = o.CustomerID
+--GROUP by c.CustomerID, c.CompanyName
+--order by count(o.OrderID) DESC
+--LIMIT 5
+
+
+--14) select count(p.productname), p.categoryid, c.categoryname from Products p
+--join Categories c on p.CategoryID = c.categoryid
+--GROUP by c.categoryname
+--having count(p.ProductName) > 15
+
+
+--15) select c.customerid, c.companyname, count(DISTINCT od.productid) from Customers c
+--join orders o on c.CustomerID = o.CustomerID
+--join 'Order Details' od on o.OrderID = od.orderid
+--GROUP by c.CustomerID, c.CompanyName
+--having count(DISTINCT od.productid) > 5
+
+
+--16) select s.supplierid, count(p.productid) from Suppliers s
+--join Products p on s.SupplierID = p.SupplierID
+--GROUP by s.SupplierID
+--having count(p.productid) > 20
+
+--17)SELECT O.CustomerID, OD.ProductID, OD.UnitPrice
+--FROM Orders AS O
+--JOIN 'Order Details' AS OD ON O.OrderID = OD.OrderID
+--WHERE OD.UnitPrice = (SELECT MAX(OD2.UnitPrice) FROM Orders AS O2
+--JOIN 'Order Details' AS OD2 ON O2.OrderID = OD2.OrderID
+--WHERE O2.CustomerID = O.CustomerID)
+
+
+--18) select e.employeeid, od.orderid, sum(od.unitprice*od.quantity) from Employees e 
+--JOIN orders o on e.EmployeeID = o.EmployeeID
+--join 'Order Details' od on o.OrderID = od.orderid
+--GROUP by e.EmployeeID, od.orderid
+--HAVING sum(od.unitprice*od.quantity) > 10000
+
+
+--19)SELECT P.CategoryID, P.ProductID, SUM(OD.Quantity) AS TotalSales FROM Products AS P
+--JOIN 'Order Details' AS OD ON P.ProductID = OD.ProductID
+--JOIN Orders AS O ON OD.OrderID = O.OrderID
+--GROUP BY P.CategoryID, P.ProductID
+--HAVING SUM(OD.Quantity) = (
+--    SELECT MAX(TotalSales)
+--    FROM (
+--        SELECT SUM(OD2.Quantity) AS TotalSales
+--       FROM Products AS P2
+--        JOIN 'Order Details' AS OD2 ON P2.ProductID = OD2.ProductID
+--        WHERE P2.CategoryID = P.CategoryID
+--        GROUP BY P2.ProductID
+--    ) AS T
+--)
+--ORDER BY P.CategoryID;
+
+
+--20) SELECT c.CustomerID, c.CompanyName, p.ProductID, p.ProductName, o.OrderDate FROM Customers c
+--JOIN orders o ON c.customerid = o.customerid
+--JOIN 'Order Details' od ON o.orderid = od.orderid
+--JOIN products p ON od.productid = p.productid
+--WHERE o.orderdate = (
+--        SELECT MAX(orderdate)
+--        FROM orders o2
+--        WHERE o2.customerid = c.customerid)
+
+
+
+--21) SELECT O.EmployeeID, O.OrderDate, (OD.UnitPrice *SUM( OD.Quantity)) AS TotalPrice
+--FROM Orders AS O JOIN 'Order Details' AS OD ON O.OrderID = OD.OrderID
+--GROUP BY O.EmployeeID, O.OrderID, O.OrderDate
+--HAVING SUM(OD.UnitPrice * OD.Quantity) = (
+--SELECT MAX(TotalOrderValue) FROM (SELECT  O2.OrderID, SUM(OD2.UnitPrice * OD2.Quantity) AS TotalOrderValue
+--FROM  Orders AS O2 JOIN 'Order Details' AS OD2 ON O2.OrderID = OD2.OrderID
+--WHERE O2.EmployeeID = O.EmployeeID GROUP BY O2.OrderID) AS OrderTotals)
+--ORDER BY O.EmployeeID
+
+
+--22) select p.productid, p.productname, count(ord.orderid), o.orderdate from Products p 
+--join 'Order Details' ord on p.ProductID = ord.productid
+--join orders o on ord.orderid = o.OrderID
+--GROUP by p.ProductID
+--order by count(ord.orderid) DESC
+--LIMIT 1
